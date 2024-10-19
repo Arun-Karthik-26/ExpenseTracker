@@ -1,0 +1,88 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Navbar Styles */
+  .navbar {
+    background-color: whitesmoke; /* White smoke background */
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for effect */
+    height: 80px;
+  }
+  
+  .navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #4D46CF;
+    margin: 5px 5px;
+  }
+  
+  /* Button Styles */
+  .btn {
+    background-color: #F2F2F2; /* Light gray background */
+    padding: 20px 20px; /* Slightly adjusted padding for a balanced look */
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px; /* Slightly smaller font size for navbar */
+    color: black; /* Text color */
+    font-weight: bold; /* Bold text */
+    border: 2px solid #e0e0e0; /* Border color to match the overall style */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slightly lighter shadow for a cleaner look */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s; /* Transition effects */
+    /* Space between buttons */
+  }
+  
+  .btn:hover {
+    background-color: #e0e0e0; /* Slightly darker gray on hover */
+    transform: scale(1.05); /* Scale effect on hover */
+  }
+  
+  .btn1 {
+    background-color: #4D46CF; /* Darker background for primary action */
+    padding: 10px 20px; /* Adjusted padding for a nicer feel */
+    font-family: Arial, Helvetica, sans-serif;
+    color: white; /* Text color */
+    font-weight: bolder; /* Bold text */
+    border: 2px solid #4D46CF; /* Border color to match background */
+    border-radius: 10px; /* More rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* More pronounced box shadow */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s; /* Transition effects */
+    margin-bottom: 1px;
+  }
+  
+  .btn1:hover {
+    background-color: #3b3b98; /* Darker shade on hover */
+    transform: scale(1.05); /* Scale effect on hover */
+  }
+  
+  .flex {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+  }
+  
+  .nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+  }
+  
+  .nav-links a:hover {
+    color: #007bff; /* Optional hover effect */
+  }
+  
