@@ -2,47 +2,133 @@ import Expense from '../models/expense.js'; // Import the Expense model
 import Budget from '../models/budget.js';
 import mongoose from 'mongoose'; // Import mongoose for ObjectId
 
-// Save new expense to MongoDB
 export const saveNewExpense = async (req, res) => {
-    const { budgetId, amount, description, date, userid } = req.body;
-    console.log("Incoming request body:", req.body); // Log the incoming request body
+    const { budgetId, amount, description, date, userId } = req.body;
+
+    // Validate budgetId length and format
+    if (!mongoose.Types.ObjectId.isValid(budgetId)) {
+        return res.status(400).json({ message: "Invalid budget ID format" });
+    }
+
+    const budgetObjectId = new mongoose.Types.ObjectId(budgetId); // Use new ObjectId
 
     try {
-        // Log the budgetId to verify
-        console.log("Budget ID:", budgetId);
-
-        // Convert budgetId to ObjectId
-        const budgetObjectId = new mongoose.Types.ObjectId(budgetId);
-        const expense = new Expense({ budgetId: budgetObjectId, amount, description, date, userid }); // Use budgetObjectId here
-        await expense.save();
-
-        // Update the budget's remaining amount and total expenses
-        const budget = await Budget.findById("6713ff6d4b817585ceb9ad01");
-        if (budget) {
-            console.log("Budget found:", budget.title); // Log the title of the found budget
-            budget.remaining -= amount;
-            budget.expenses += amount; // Assuming you want to track total expenses
-            await budget.save();
-        } else {
-            console.log("No budget found with ID:", budgetId);
+        // Check if the budget exists
+        const budgetExists = await Budget.exists({ _id: budgetObjectId });
+        if (!budgetExists) {
+            return res.status(404).json({ message: "Budget not found" });
         }
 
-        console.log("Remaining after expense addition:", budget ? budget.remaining : 'Budget not found');
+        // Create the expense
+        const expense = new Expense({
+            budgetId: budgetObjectId,
+            amount,
+            description,
+            date,
+            userId // Should be a valid string
+        });
+
+        await expense.save();
+
+        // Update the budget
+        const budget = await Budget.findById(budgetObjectId);
+        if (budget) {
+            budget.remaining -= amount;
+            budget.expenses += amount; // Update total expenses
+            await budget.save();
+        } else {
+            return res.status(404).json({ message: "Budget not found" });
+        }
+
         res.status(201).json(expense);
     } catch (error) {
-        console.error("Error adding expense:", error);
-        res.status(500).json({ message: "Error adding expense" });
+        console.error("Error adding expense:", error.message);
+        console.error("Stack trace:", error.stack);
+        res.status(500).json({ message: "Error adding expense", error: error.message });
     }
 };
 
-// Fetch expenses for a specific budget
-export const fetchExpensesByBudgetId = async (req, res) => {
-    const { budgetId } = req.params; // Extract budgetId from request parameters
-  
+
+
+
+export const fetchExpenses = async (req, res) => {
+    const { budgetId } = req.query;
+    console.log(budgetId);
     try {
-      const expenses = await Expense.find({ budgetId }); // Find expenses based on budgetId
-      res.status(200).json(expenses); // Send the expenses in the response
+        // Ensure that the budgetId is valid
+        if (!mongoose.Types.ObjectId.isValid(budgetId)) {
+            return res.status(400).json({ message: "Invalid budget ID format" });
+        }
+        console.log("budget id valid");
+        // Convert budgetId to ObjectId
+        const budgetObjectId = new mongoose.Types.ObjectId(budgetId);
+        
+        // Find all expenses associated with the budgetId
+        const expenses = await Expense.find({ budgetId: budgetObjectId });
+        console.log("expenses found");
+        if (expenses.length === 0) {
+            return res.status(404).json({ message: "No expenses found for this budget" });
+        }
+
+        res.status(200).json(expenses);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching expenses', error });
+        console.error("Error fetching expenses:", error);
+        res.status(500).json({ message: "Error fetching expenses" });
     }
-  };
+};
+// Fetch recent expenses based on userid without budget join
+// Fetch recent expenses based on userid and get the budget title
+export const fetchRecentExpenses = async (req, res) => {
+    const userId = req.query.user; // Get user ID from query params
+    console.log("User ID is :", userId);
+
+    try {
+        // Validate that userId is provided
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
+
+        // Aggregate to find expenses and join with Budget to get the budget title
+        const expenses = await Expense.aggregate([
+            {
+                $match: { userId: userId } // Match expenses by userId
+            },
+            {
+                $lookup: {
+                    from: 'budgets', // The collection name for budgets
+                    localField: 'budgetId', // Field from Expense collection (budgetId)
+                    foreignField: '_id', // Field from Budget collection (_id)
+                    as: 'budget' // Alias for the joined data
+                }
+            },
+            {
+                $unwind: { // Unwind the array to get a single budget
+                    path: '$budget',
+                    preserveNullAndEmptyArrays: true // Keep expenses without a matching budget
+                }
+            },
+            {
+                $project: { // Select only the fields to return
+                    _id: 1,
+                    amount: 1,
+                    description: 1,
+                    date: 1,
+                    'budget.title': 1 // Include budget title
+                }
+            },
+            {
+                $sort: { date: -1 } // Sort by date in descending order
+            }
+        ]);
+
+        if (expenses.length === 0) {
+            return res.status(404).json({ message: "No expenses found for this user" });
+        }
+
+        res.status(200).json(expenses);
+    } catch (error) {
+        console.error("Error fetching expenses:", error);
+        res.status(500).json({ message: "Error fetching expenses" });
+    }
+};
+

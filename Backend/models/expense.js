@@ -19,8 +19,8 @@ const ExpenseSchema = new mongoose.Schema({
     default: Date.now,
   },
   userId: { // Optional, if you want to link expenses to users
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: String ,
+    required: true,
   },
 });
 

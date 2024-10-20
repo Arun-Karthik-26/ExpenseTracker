@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { FiPlus } from "react-icons/fi";
 import axios from "axios";
+import Layout from "./Layout";
 
 const Budgets = () => {
   const [budgets, setBudgets] = useState([]);
@@ -12,6 +13,7 @@ const Budgets = () => {
   const [expenseAmount, setExpenseAmount] = useState("");
   const [expenseDescription, setExpenseDescription] = useState("");
   const [user, setUser] = useState(null);
+  const [expenses, setExpenses] = useState([]); // Add a state for expenses
 
   useEffect(() => {
     const auth = getAuth();
@@ -39,6 +41,17 @@ const Budgets = () => {
     }
   };
 
+  const loadExpenses = async (budgetId) => {
+    try {
+      const response = await axios.get("http://localhost:5000/getexpenses", {
+        params: { budgetId },
+      });
+      setExpenses(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error fetching expenses:", error);
+    }
+  };
+
   const handleCreateBudget = async (event) => {
     event.preventDefault();
     try {
@@ -52,7 +65,7 @@ const Budgets = () => {
         title: newBudgetTitle,
         totalAmount: parseFloat(newBudgetTotalAmount),
         remaining: parseFloat(newBudgetTotalAmount),
-        expenses: 0,
+        expenses: [],
         createdAt: new Date().toISOString(),
       };
 
@@ -74,11 +87,12 @@ const Budgets = () => {
         amount: parseFloat(expenseAmount),
         description: expenseDescription,
         date: new Date().toISOString(),
-        userid: user.uid,
+        userId: user.uid,
       };
 
       await axios.post("http://localhost:5000/addexpense", newExpense);
       loadBudgets(user.uid);
+      loadExpenses(selectedBudget._id); // Reload expenses after adding a new one
       setExpenseAmount("");
       setExpenseDescription("");
     } catch (error) {
@@ -86,9 +100,17 @@ const Budgets = () => {
     }
   };
 
+  const handleSelectBudget = (budget) => {
+    setSelectedBudget(budget);
+    loadExpenses(budget._id); // Fetch expenses when a budget is selected
+  };
+
   return (
+      <Layout>
     <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Manage Your Budgets</h1>
+      <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">
+        Manage Your Budgets
+      </h1>
 
       {/* Create New Budget Card */}
       <div
@@ -97,12 +119,17 @@ const Budgets = () => {
       >
         <div className="flex items-center">
           <FiPlus className="mr-2 text-blue-600" size={24} />
-          <span className="font-semibold text-gray-700 text-lg">Create New Budget</span>
+          <span className="font-semibold text-gray-700 text-lg">
+            Create New Budget
+          </span>
         </div>
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreateBudget} className="mb-6 bg-white shadow-md rounded-lg p-6">
+        <form
+          onSubmit={handleCreateBudget}
+          className="mb-6 bg-white shadow-md rounded-lg p-6"
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
               type="text"
@@ -140,12 +167,17 @@ const Budgets = () => {
             <div
               key={budget._id}
               className="bg-white border border-gray-300 shadow-md rounded-lg p-6 cursor-pointer hover:bg-gray-50 transition"
-              onClick={() => setSelectedBudget(budget)}
+              onClick={() => handleSelectBudget(budget)}
             >
               <h3 className="text-xl font-semibold mb-2">{budget.title}</h3>
               <p className="text-gray-600">Total Amount: ${budget.totalAmount}</p>
               <p className="text-gray-600">Remaining Amount: ${budget.remaining}</p>
-              <p className="text-gray-600">Expenses: ${budget.expenses}</p>
+              {/* <p className="text-gray-600">
+                Expenses: $
+                {Array.isArray(budget.expenses)
+                  ? budget.expenses.reduce((sum, exp) => sum + exp.amount, 0)
+                  : 0}
+              </p> */}
               <p className="text-gray-500 text-sm">
                 Created: {new Date(budget.createdAt).toLocaleDateString()}
               </p>
@@ -160,8 +192,12 @@ const Budgets = () => {
           <h2 className="text-2xl font-bold mb-4">{selectedBudget.title} - Details</h2>
           <p className="text-gray-700">Total Amount: ${selectedBudget.totalAmount}</p>
           <p className="text-gray-700">Remaining Amount: ${selectedBudget.remaining}</p>
-          <p className="text-gray-700">Expenses: ${selectedBudget.expenses}</p>
-
+          {/* <p className="text-gray-700">
+            Expenses: $
+            {Array.isArray(selectedBudget.expenses)
+              ? selectedBudget.expenses.reduce((sum, exp) => sum + exp.amount, 0)
+              : 0}
+          </p> */}
           <form onSubmit={handleAddExpense} className="mt-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input
@@ -183,32 +219,35 @@ const Budgets = () => {
             </div>
             <button
               type="submit"
-              className="mt-4 bg-green-600 text-white py-3 px-6 rounded-lg w-full hover:bg-green-700 transition"
+              className="mt-4 bg-blue-600 text-white py-3 px-6 rounded-lg w-full hover:bg-blue-700 transition"
             >
               Add Expense
             </button>
           </form>
 
-          {/* Display expenses under the selected budget */}
-          <h3 className="text-xl font-semibold mt-6">Expenses</h3>
-          <ul className="mt-4">
-            {selectedBudget.expenses && selectedBudget.expenses.length > 0 ? (
-              selectedBudget.expenses.map((expense) => (
-                <li key={expense._id} className="border p-4 mb-2 rounded-lg bg-gray-50">
-                  <p className="text-gray-700">Description: {expense.description}</p>
-                  <p className="text-gray-700">Amount: ${expense.amount}</p>
-                  <p className="text-gray-500 text-sm">
-                    Date: {new Date(expense.date).toLocaleDateString()}
-                  </p>
+          {/* Display expenses for the selected budget */}
+          <h3 className="text-xl font-semibold mt-8 mb-4">Expenses for {selectedBudget.title}</h3>
+          {expenses.length === 0 ? (
+            <p className="text-gray-600">No expenses yet.</p>
+          ) : (
+            <ul>
+              {expenses.map((expense) => (
+                <li key={expense._id} className="mb-2">
+                  <div className="border border-gray-300 p-4 rounded-lg shadow-sm">
+                    <p className="text-gray-700">{expense.description}</p>
+                    <p className="text-gray-600">Amount: ${expense.amount}</p>
+                    <p className="text-gray-500 text-sm">
+                      Date: {new Date(expense.date).toLocaleDateString()}
+                    </p>
+                  </div>
                 </li>
-              ))
-            ) : (
-              <p className="text-gray-600">No expenses available for this budget.</p>
-            )}
-          </ul>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>
+   </Layout>
   );
 };
 

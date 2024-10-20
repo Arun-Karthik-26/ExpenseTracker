@@ -19,9 +19,11 @@ function Home() {
                         <p className="text-base font-bold text-gray-600 mb-4">
                             Start creating your budget and save tons of money.
                         </p>
+                        <a href='/signin'>
                         <button className="bg-[#4D46CF] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#3b3b98] transition-colors duration-300">
                             Get Started
                         </button>
+                        </a>
                     </div>
                 </div>
             </div>
