@@ -12,7 +12,7 @@ export const saveNewExpense = async (req, res) => {
         console.log("Budget ID:", budgetId);
 
         // Convert budgetId to ObjectId
-        const budgetObjectId = mongoose.Types.ObjectId(budgetId);
+        const budgetObjectId = new mongoose.Types.ObjectId(budgetId);
         const expense = new Expense({ budgetId: budgetObjectId, amount, description, date, userid }); // Use budgetObjectId here
         await expense.save();
 
