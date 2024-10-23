@@ -1,6 +1,8 @@
 import React from 'react';
 import Navbar from './navbar';
 import Footer from './footer';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Home() {
     return (
@@ -25,9 +27,11 @@ function Home() {
                         </button>
                         </a>
                     </div>
+                
                 </div>
             </div>
             <Footer />
+            
         </div>
     );
 }

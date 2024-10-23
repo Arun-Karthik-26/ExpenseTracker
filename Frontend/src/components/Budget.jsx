@@ -3,6 +3,8 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { FiPlus } from "react-icons/fi";
 import axios from "axios";
 import Layout from "./Layout";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Budgets = () => {
   const [budgets, setBudgets] = useState([]);
@@ -68,6 +70,15 @@ const Budgets = () => {
         expenses: [],
         createdAt: new Date().toISOString(),
       };
+      toast.success("Budget Added Successfully !", {
+        position:"top-right",
+        autoClose:1000,
+        hideProgressBar:false,
+        closeOnClick:true,
+        pauseOnHover:true,
+        draggable:true,
+        progress:undefined,
+      });    
 
       await axios.post("http://localhost:5000/addbudget", newBudget);
       loadBudgets(user.uid);
@@ -75,6 +86,15 @@ const Budgets = () => {
       setNewBudgetTotalAmount("");
       setShowForm(false);
     } catch (error) {
+      toast.error("Error adding budget !", {
+        position:"top-right",
+        autoClose:1000,
+        hideProgressBar:false,
+        closeOnClick:true,
+        pauseOnHover:true,
+        draggable:true,
+        progress:undefined,
+      });    
       console.error("Error adding budget:", error);
     }
   };
@@ -89,6 +109,15 @@ const Budgets = () => {
         date: new Date().toISOString(),
         userId: user.uid,
       };
+      toast.success("Expenses Added Successfully !", {
+        position:"top-right",
+        autoClose:1000,
+        hideProgressBar:false,
+        closeOnClick:true,
+        pauseOnHover:true,
+        draggable:true,
+        progress:undefined,
+      });    
 
       await axios.post("http://localhost:5000/addexpense", newExpense);
       loadBudgets(user.uid);
@@ -96,6 +125,15 @@ const Budgets = () => {
       setExpenseAmount("");
       setExpenseDescription("");
     } catch (error) {
+      toast.success("Error adding expense !", {
+        position:"top-right",
+        autoClose:1000,
+        hideProgressBar:false,
+        closeOnClick:true,
+        pauseOnHover:true,
+        draggable:true,
+        progress:undefined,
+      });    
       console.error("Error adding expense:", error);
     }
   };
@@ -247,6 +285,7 @@ const Budgets = () => {
         </div>
       )}
     </div>
+    <ToastContainer />
    </Layout>
   );
 };
