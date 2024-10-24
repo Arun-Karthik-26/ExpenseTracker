@@ -3,7 +3,6 @@ import User from '../models/user.js' // Import the User model
 // Save new user to MongoDB
 export const saveNewUser = async (req, res) => {
   const { firebaseUID, email, name, password } = req.body; // Extract data from request body
-  console.log(req.body);
   try {
     // Create a new user document
     const newUser = new User({
@@ -12,7 +11,6 @@ export const saveNewUser = async (req, res) => {
       name,
       password, // Save password if it exists (for email/password signup)
     });
-    console.log("into the db");
     // Save the user document to MongoDB
     await newUser.save();
 

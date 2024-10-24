@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Layout from './Layout';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const Expenses = () => {
     const [expenses, setExpenses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [userId, setUserId] = useState(null); 
 
     // Function to load recent expenses
-    const loadRecentExpenses = async () => {
-        const userId = "X0sdMYA77pMJDyZ5XXjJKvdQkpY2"; // Replace with dynamic user ID if available
+    const loadRecentExpenses = async (uid) => {
+        const userId = uid; // Replace with dynamic user ID if available
 
         try {
             const response = await axios.get(`http://localhost:5000/getlatestexpenses?user=${userId}`);
@@ -24,8 +26,24 @@ const Expenses = () => {
 
     // useEffect to load expenses on component mount
     useEffect(() => {
-        loadRecentExpenses();
-    }, []);
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+          if (firebaseUser) {
+            setUserId(firebaseUser.uid); // Set user ID from Firebase
+          } else {
+            console.error("No user is logged in");
+          }
+        });
+    
+        return () => unsubscribe();
+      }, []);
+    
+      // Fetch dashboard data when user ID is available
+      useEffect(() => {
+        if (userId) {
+          loadRecentExpenses(userId);
+        }
+      }, [userId]);
 
     // Render expenses
     if (loading) {

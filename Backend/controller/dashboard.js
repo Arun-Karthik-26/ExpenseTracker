@@ -1,4 +1,3 @@
-import Expense from '../models/expense.js'; // Import the Expense model
 import Budget from '../models/budget.js';
 
 export const fetchDashboard = async (req, res) => {
@@ -36,7 +35,6 @@ export const fetchDashboard = async (req, res) => {
             .select("title totalAmount remaining");
         
         // Prepare response
-        console.log(latestBudgets);
         res.json({
             totalBudget,
             totalSpend,

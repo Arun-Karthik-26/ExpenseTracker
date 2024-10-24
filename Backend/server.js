@@ -2,9 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import dbconnect from './db/mongodbconnect.js';
 import {saveNewUser} from './controller/userController.js';
-import { fetchBudgetsByUserId, saveNewBudget } from './controller/budgetController.js';
-import { fetchExpenses, fetchRecentExpenses, saveNewExpense } from './controller/expenseController.js';
+import { deleteBudget, fetchBudgetsByUserId, saveNewBudget, updateBudget } from './controller/budgetController.js';
+import { deleteExpense, fetchExpenses, fetchRecentExpenses, saveNewExpense, updateExpense } from './controller/expenseController.js';
 import { fetchDashboard } from './controller/dashboard.js';
+import { generateReport, getBudgetData } from './controller/Report.js';
 
 
 const app = express();
@@ -24,6 +25,12 @@ app.post('/addexpense',saveNewExpense);
 app.get('/getexpenses',fetchExpenses);
 app.get('/getlatestexpenses',fetchRecentExpenses);
 app.get('/getDashBoardData',fetchDashboard);
+app.get('/getexpensesbymonth',generateReport);
+app.get('/getbudgetdata',getBudgetData);
+app.put('/updatebudget/:budgetId',updateBudget);
+app.delete('/deletebudget/:budgetId',deleteBudget);
+app.put('/updateexpense/:expenseId',updateExpense);
+app.delete('/deleteexpense/:expenseId',deleteExpense);
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

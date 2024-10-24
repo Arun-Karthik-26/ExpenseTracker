@@ -3,40 +3,35 @@ import axios from "axios";
 import ActivityChart from "./ActivityChart";
 import { FiDollarSign, FiClipboard, FiCreditCard } from "react-icons/fi";
 import Layout from "./Layout";
+import { getAuth, onAuthStateChanged } from "firebase/auth"; // Import Firebase auth methods
 
 const DashboardContent = () => {
   const [totalBudget, setTotalBudget] = useState(0);
   const [totalSpend, setTotalSpend] = useState(0);
   const [numBudgets, setNumBudgets] = useState(0);
   const [latestBudgets, setLatestBudgets] = useState([]);
-  const [activityData, setActivityData] = useState({ budgets: [], amounts: [] }); // Data for the chart
-  const userId = "X0sdMYA77pMJDyZ5XXjJKvdQkpY2"; // Replace with dynamic user ID
+  const [activityData, setActivityData] = useState({ budgets: [], amounts: [] });
+  const [userId, setUserId] = useState(null); // State for user ID
 
   // Function to fetch dashboard data from the server
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (uid) => {
     try {
-      const response = await axios.get(`http://localhost:5000/getDashBoardData?user=${userId}`);
+      const response = await axios.get(`http://localhost:5000/getDashBoardData?user=${uid}`);
       const data = response.data;
 
-      setTotalBudget(data.totalBudget); // Set total budget
-      setTotalSpend(data.totalSpend); // Set total spend
-      setNumBudgets(data.numBudgets); // Set number of budgets
-      setLatestBudgets(data.latestBudgets); // Set latest budgets
+      setTotalBudget(data.totalBudget);
+      setTotalSpend(data.totalSpend);
+      setNumBudgets(data.numBudgets);
+      setLatestBudgets(data.latestBudgets);
 
-      // Prepare activity data for the chart
-      const activityData = data.activityData; // Fetch activity data from the response
+      const activityData = data.activityData;
+      const updatedActivityData = activityData.map(act => ({
+        title: act.title,
+        amount_spend: act.totalAmount - act.remaining,
+      }));
 
-      // Calculate amount spent for each activity
-      const updatedActivityData = activityData.map(act => {
-        return {
-          title: act.title, // Title of the budget
-          amount_spend: act.totalAmount - act.remaining // Calculate spend as totalAmount - remaining
-        };
-      });
-
-      // Prepare data for the chart
-      const budgets = updatedActivityData.map(act => act.title); // Extract budget titles for x-axis
-      const amounts = updatedActivityData.map(act => act.amount_spend); // Extract calculated spend for y-axis
+      const budgets = updatedActivityData.map(act => act.title);
+      const amounts = updatedActivityData.map(act => act.amount_spend);
 
       setActivityData({
         budgets: budgets,
@@ -48,8 +43,24 @@ const DashboardContent = () => {
   };
 
   useEffect(() => {
-    fetchDashboardData(); // Fetch data on component mount
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUserId(firebaseUser.uid); // Set user ID from Firebase
+      } else {
+        console.error("No user is logged in");
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
+
+  // Fetch dashboard data when user ID is available
+  useEffect(() => {
+    if (userId) {
+      fetchDashboardData(userId);
+    }
+  }, [userId]);
 
   return (
     <Layout>
@@ -95,7 +106,6 @@ const DashboardContent = () => {
         <h3 className="text-xl font-bold mb-4">Latest Budgets</h3>
         <div className="flex flex-col space-y-4">
           {latestBudgets.map((budget, index) => {
-            // Calculate the spent amount
             const spentAmount = budget.totalAmount - budget.remaining;
             return (
               <div key={index} className="flex items-center justify-between">

@@ -2,6 +2,8 @@ import Expense from '../models/expense.js'; // Import the Expense model
 import Budget from '../models/budget.js';
 import mongoose from 'mongoose'; // Import mongoose for ObjectId
 
+// Ensure you have the correct import for your Expense model
+
 export const saveNewExpense = async (req, res) => {
     const { budgetId, amount, description, date, userId } = req.body;
 
@@ -14,9 +16,14 @@ export const saveNewExpense = async (req, res) => {
 
     try {
         // Check if the budget exists
-        const budgetExists = await Budget.exists({ _id: budgetObjectId });
-        if (!budgetExists) {
+        const budget = await Budget.findById(budgetObjectId);
+        if (!budget) {
             return res.status(404).json({ message: "Budget not found" });
+        }
+
+        // Check if there is enough remaining budget
+        if (budget.remaining < amount) {
+            return res.status(400).json({ message: "Insufficient budget remaining" });
         }
 
         // Create the expense
@@ -31,14 +38,9 @@ export const saveNewExpense = async (req, res) => {
         await expense.save();
 
         // Update the budget
-        const budget = await Budget.findById(budgetObjectId);
-        if (budget) {
-            budget.remaining -= amount;
-            budget.expenses += amount; // Update total expenses
-            await budget.save();
-        } else {
-            return res.status(404).json({ message: "Budget not found" });
-        }
+        budget.remaining -= amount; // Deduct the amount from remaining budget
+        budget.expenses += amount;   // Update total expenses
+        await budget.save();
 
         res.status(201).json(expense);
     } catch (error) {
@@ -50,26 +52,21 @@ export const saveNewExpense = async (req, res) => {
 
 
 
-
 export const fetchExpenses = async (req, res) => {
     const { budgetId } = req.query;
-    console.log(budgetId);
     try {
         // Ensure that the budgetId is valid
         if (!mongoose.Types.ObjectId.isValid(budgetId)) {
             return res.status(400).json({ message: "Invalid budget ID format" });
         }
-        console.log("budget id valid");
         // Convert budgetId to ObjectId
         const budgetObjectId = new mongoose.Types.ObjectId(budgetId);
         
         // Find all expenses associated with the budgetId
         const expenses = await Expense.find({ budgetId: budgetObjectId });
-        console.log("expenses found");
         if (expenses.length === 0) {
             return res.status(404).json({ message: "No expenses found for this budget" });
         }
-
         res.status(200).json(expenses);
     } catch (error) {
         console.error("Error fetching expenses:", error);
@@ -79,9 +76,7 @@ export const fetchExpenses = async (req, res) => {
 // Fetch recent expenses based on userid without budget join
 // Fetch recent expenses based on userid and get the budget title
 export const fetchRecentExpenses = async (req, res) => {
-    const userId = req.query.user; // Get user ID from query params
-    console.log("User ID is :", userId);
-
+    const userId = req.query.user; // Get user ID from query param
     try {
         // Validate that userId is provided
         if (!userId) {
@@ -132,3 +127,87 @@ export const fetchRecentExpenses = async (req, res) => {
     }
 };
 
+
+
+export const updateExpense = async (req, res) => {
+  const { expenseId } = req.params; // Extract expense ID from the URL parameters
+  const { amount, description, date } = req.body; // Extract fields from the request body
+
+  try {
+    // Find the existing expense by its ID
+    const existingExpense = await Expense.findById(expenseId);
+    if (!existingExpense) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
+
+    // Find the corresponding budget
+    const budget = await Budget.findById(existingExpense.budgetId);
+    if (!budget) {
+      return res.status(404).json({ message: 'Budget not found' });
+    }
+
+    // Fetch all expenses linked to the budget to calculate the total amount spent
+    const totalExpenses = await Expense.aggregate([
+      { $match: { budgetId: existingExpense.budgetId } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+
+    // Calculate the remaining budget
+    const currentRemaining = budget.totalAmount - (totalExpenses[0]?.total || 0);
+    
+    // Check if the new expense amount would exceed the budget remaining
+    const updatedRemaining = currentRemaining + existingExpense.amount - amount; // Adjust for the current expense amount
+    if (updatedRemaining < 0) {
+      return res.status(400).json({ message: 'Insufficient budget remaining. Please update the budget first.' });
+    }
+
+    // Update the expense fields
+    existingExpense.amount = amount;
+    existingExpense.description = description;
+    existingExpense.date = date;
+
+    // Save the updated expense
+    await existingExpense.save();
+
+    // Update the budget's remaining amount
+    budget.remaining = updatedRemaining; // Update the remaining budget
+    await budget.save(); // Save the budget changes
+
+    res.status(200).json({ message: 'Expense updated successfully', expense: existingExpense });
+  } catch (error) {
+    console.error("Error updating expense:", error);
+    res.status(500).json({ message: 'Error updating expense', error });
+  }
+};
+
+
+  export const deleteExpense = async (req, res) => {
+    const { expenseId } = req.params; // Extract expense ID from the URL parameters
+  
+    try {
+      // Find the existing expense by its ID
+      const existingExpense = await Expense.findById(expenseId);
+      if (!existingExpense) {
+        return res.status(404).json({ message: 'Expense not found' });
+      }
+  
+      // Find the corresponding budget
+      const budget = await Budget.findById(existingExpense.budgetId);
+      if (!budget) {
+        return res.status(404).json({ message: 'Budget not found' });
+      }
+  
+      // Update the budget's remaining amount
+      budget.remaining += existingExpense.amount; // Add back the expense amount
+      await budget.save(); // Save the budget changes
+  
+      // Delete the expense
+      await Expense.findByIdAndDelete(expenseId);
+  
+      res.status(200).json({ message: 'Expense deleted successfully' });
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+      res.status(500).json({ message: 'Error deleting expense', error });
+    }
+  };
+  

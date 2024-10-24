@@ -6,7 +6,8 @@ import PrivateRoute from './PrivateRoute.jsx';
 import Home from './components/Home.jsx';
 import Budgets from './components/Budget.jsx';
 import LatestExpenses from './components/Expenses.jsx';
-import DashboardContent from './components/dsahboardcontent.jsx';
+import DashboardContent from './components/dashboardcontent.jsx';
+import GenerateReport from './components/generate.jsx';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/dashboard" element={<PrivateRoute><DashboardContent/></PrivateRoute>}/>
         <Route path="/budgets" element={<PrivateRoute><Budgets/></PrivateRoute>}/>
         <Route path="/expenses" element={<PrivateRoute><LatestExpenses/></PrivateRoute>}/>
+        <Route path="/generate" element={<PrivateRoute><GenerateReport/></PrivateRoute>}/>
       </Routes>
     </Router>
   );
