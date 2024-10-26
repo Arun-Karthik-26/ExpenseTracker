@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import ActivityChart from "./ActivityChart";
+import ActivityChart from "./Activitychart.jsx";
 import { FiDollarSign, FiClipboard, FiCreditCard } from "react-icons/fi";
 import Layout from "./Layout";
 import { getAuth, onAuthStateChanged } from "firebase/auth"; // Import Firebase auth methods
