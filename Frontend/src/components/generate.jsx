@@ -44,7 +44,7 @@ const GenerateReport = () => {
 
     const loadRecentExpenses = async (uid) => {
         try {
-            const response = await axios.get(`http://localhost:5000/getlatestexpenses?user=${uid}`);
+            const response = await axios.get(`https://expensetracker-backend-s78u.onrender.com/getlatestexpenses?user=${uid}`);
             setExpenses(response.data);
         } catch (err) {
             console.error("Error fetching recent expenses:", err);
@@ -56,7 +56,7 @@ const GenerateReport = () => {
 
     const fetchBudgetData = async (uid,monthYear) => {
         try {
-            const response = await axios.get(`http://localhost:5000/getbudgetdata?user=${uid}&month=${monthYear}`);
+            const response = await axios.get(`https://expensetracker-backend-s78u.onrender.com/getbudgetdata?user=${uid}&month=${monthYear}`);
             const budgets = response.data; // Assuming the response is the array of budgets directly
     
             console.log(budgets);
@@ -90,7 +90,7 @@ const GenerateReport = () => {
         const monthYear = `${year}-${month}`; 
         fetchBudgetData(userId,monthYear);
         try {
-            const response = await axios.get(`http://localhost:5000/getexpensesbymonth?user=${userId}&month=${monthYear}`);
+            const response = await axios.get(`https://expensetracker-backend-s78u.onrender.com/getexpensesbymonth?user=${userId}&month=${monthYear}`);
             if (typeof response.data === 'string' && response.data === "No expenses found") {
                 setMonthlyExpenses([]);
                 setError("No expenses found for the selected month and year.");

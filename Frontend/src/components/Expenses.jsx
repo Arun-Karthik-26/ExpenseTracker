@@ -14,7 +14,7 @@ const Expenses = () => {
         const userId = uid; // Replace with dynamic user ID if available
 
         try {
-            const response = await axios.get(`http://localhost:5000/getlatestexpenses?user=${userId}`);
+            const response = await axios.get(`https://expensetracker-backend-s78u.onrender.com/getlatestexpenses?user=${userId}`);
             setExpenses(response.data); // Set the expenses from the response
         } catch (err) {
             console.error("Error fetching recent expenses:", err);

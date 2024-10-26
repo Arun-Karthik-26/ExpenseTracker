@@ -37,7 +37,7 @@ const Budgets = () => {
 
   const loadBudgets = async (uid) => {
     try {
-      const response = await axios.get("http://localhost:5000/getbudgets", {
+      const response = await axios.get("https://expensetracker-backend-s78u.onrender.com/getbudgets", {
         params: { uid },
       });
       setBudgets(Array.isArray(response.data) ? response.data : []);
@@ -49,7 +49,7 @@ const Budgets = () => {
 
   const loadExpenses = async (budgetId) => {
     try {
-      const response = await axios.get("http://localhost:5000/getexpenses", {
+      const response = await axios.get("https://expensetracker-backend-s78u.onrender.com/getexpenses", {
         params: { budgetId },
       });
       setExpenses(Array.isArray(response.data) ? response.data : []);
@@ -76,7 +76,7 @@ const Budgets = () => {
       };
       toast.success("Budget Added Successfully !", { autoClose: 1000 });
 
-      await axios.post("http://localhost:5000/addbudget", newBudget);
+      await axios.post("https://expensetracker-backend-s78u.onrender.com/addbudget", newBudget);
       loadBudgets(user.uid);
       setNewBudgetTitle("");
       setNewBudgetTotalAmount("");
@@ -94,7 +94,7 @@ const Budgets = () => {
       console.log("Total Amount:", parseFloat(newBudgetTotalAmount));
   
       // Sending the request to update the budget
-      const response = await axios.put(`http://localhost:5000/updatebudget/${editBudgetId}`, {
+      const response = await axios.put(`https://expensetracker-backend-s78u.onrender.com/updatebudget/${editBudgetId}`, {
         title: newBudgetTitle,
         totalAmount: parseFloat(newBudgetTotalAmount),
       });
@@ -128,7 +128,7 @@ const Budgets = () => {
   
   const handleDeleteBudget = async (budgetId) => {
     try {
-      await axios.delete(`http://localhost:5000/deletebudget/${budgetId}`);
+      await axios.delete(`https://expensetracker-backend-s78u.onrender.com/deletebudget/${budgetId}`);
       toast.success("Budget Deleted Successfully!", { autoClose: 1000 });
       setIsEditingExpense(false);
       loadBudgets(user.uid);
@@ -148,7 +148,7 @@ const Budgets = () => {
         date: new Date().toISOString(),
         userId: user.uid,
       };
-      await axios.post("http://localhost:5000/addexpense", newExpense);
+      await axios.post("https://expensetracker-backend-s78u.onrender.com/addexpense", newExpense);
       toast.success("Expense Added Successfully !", { autoClose: 1000 });
       loadBudgets(user.uid);
       loadExpenses(selectedBudget._id); 
@@ -176,7 +176,7 @@ const Budgets = () => {
   const handleUpdateExpense = async (event) => {
     event.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/updateexpense/${editExpenseId}`, {
+      await axios.put(`https://expensetracker-backend-s78u.onrender.com/updateexpense/${editExpenseId}`, {
         amount: parseFloat(expenseAmount),
         description: expenseDescription,
       });
@@ -206,7 +206,7 @@ const Budgets = () => {
 
   const handleDeleteExpense = async (expenseId) => {
     try {
-      await axios.delete(`http://localhost:5000/deleteexpense/${expenseId}`);
+      await axios.delete(`https://expensetracker-backend-s78u.onrender.com/deleteexpense/${expenseId}`);
       toast.success("Expense Deleted Successfully!", { autoClose: 1000 });
       loadBudgets(user.uid);
       loadExpenses(selectedBudget._id);
