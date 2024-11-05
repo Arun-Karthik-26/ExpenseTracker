@@ -5,12 +5,13 @@ import {saveNewUser} from './controller/userController.js';
 import { deleteBudget, fetchBudgetsByUserId, saveNewBudget, updateBudget } from './controller/budgetController.js';
 import { deleteExpense, fetchExpenses, fetchRecentExpenses, saveNewExpense, updateExpense } from './controller/expenseController.js';
 import { fetchDashboard } from './controller/dashboard.js';
-import { generateReport, getBudgetData } from './controller/Report.js';
+import { generateReport, getBudgetById } from './controller/Report.js';
+import { addReminder } from './controller/remaindercontroller.js';
 
 
 const app = express();
 const port = process.env.PORT || 5000;
-app.use(cors({ origin: 'https://expensetracker-frontend-yclt.onrender.com' }));
+// app.use(cors({ origin: 'https://expensetracker-frontend-yclt.onrender.com' }));
 // Other routes and middleware
 
 // Middleware to enable CORS and parse JSON
@@ -27,12 +28,14 @@ app.post('/addexpense',saveNewExpense);
 app.get('/getexpenses',fetchExpenses);
 app.get('/getlatestexpenses',fetchRecentExpenses);
 app.get('/getDashBoardData',fetchDashboard);
-app.get('/getexpensesbymonth',generateReport);
-app.get('/getbudgetdata',getBudgetData);
+app.get('/getexpensesinrange', generateReport); 
+app.get('/getbudgetdata', getBudgetById);
 app.put('/updatebudget/:budgetId',updateBudget);
 app.delete('/deletebudget/:budgetId',deleteBudget);
 app.put('/updateexpense/:expenseId',updateExpense);
 app.delete('/deleteexpense/:expenseId',deleteExpense);
+app.post('/remainders',addReminder);
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

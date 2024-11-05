@@ -14,6 +14,7 @@ const Budgets = () => {
   const [selectedBudget, setSelectedBudget] = useState(null);
   const [expenseAmount, setExpenseAmount] = useState("");
   const [expenseDescription, setExpenseDescription] = useState("");
+  const [expenseDate, setExpenseDate] = useState(getMaxDate());
   const [user, setUser] = useState(null);
   const [expenses, setExpenses] = useState([]); 
   const [isEditingBudget, setIsEditingBudget] = useState(false); // To handle budget edit state
@@ -37,7 +38,7 @@ const Budgets = () => {
 
   const loadBudgets = async (uid) => {
     try {
-      const response = await axios.get("https://expensetracker-backend-s78u.onrender.com/getbudgets", {
+      const response = await axios.get("http://localhost:5000/getbudgets", {
         params: { uid },
       });
       setBudgets(Array.isArray(response.data) ? response.data : []);
@@ -49,7 +50,7 @@ const Budgets = () => {
 
   const loadExpenses = async (budgetId) => {
     try {
-      const response = await axios.get("https://expensetracker-backend-s78u.onrender.com/getexpenses", {
+      const response = await axios.get("http://localhost:5000/getexpenses", {
         params: { budgetId },
       });
       setExpenses(Array.isArray(response.data) ? response.data : []);
@@ -76,7 +77,7 @@ const Budgets = () => {
       };
       toast.success("Budget Added Successfully !", { autoClose: 1000 });
 
-      await axios.post("https://expensetracker-backend-s78u.onrender.com/addbudget", newBudget);
+      await axios.post("http://localhost:5000/addbudget", newBudget);
       loadBudgets(user.uid);
       setNewBudgetTitle("");
       setNewBudgetTotalAmount("");
@@ -94,7 +95,7 @@ const Budgets = () => {
       console.log("Total Amount:", parseFloat(newBudgetTotalAmount));
   
       // Sending the request to update the budget
-      const response = await axios.put(`https://expensetracker-backend-s78u.onrender.com/updatebudget/${editBudgetId}`, {
+      const response = await axios.put(`http://localhost:5000/updatebudget/${editBudgetId}`, {
         title: newBudgetTitle,
         totalAmount: parseFloat(newBudgetTotalAmount),
       });
@@ -128,7 +129,7 @@ const Budgets = () => {
   
   const handleDeleteBudget = async (budgetId) => {
     try {
-      await axios.delete(`https://expensetracker-backend-s78u.onrender.com/deletebudget/${budgetId}`);
+      await axios.delete(`http://localhost:5000/deletebudget/${budgetId}`);
       toast.success("Budget Deleted Successfully!", { autoClose: 1000 });
       setIsEditingExpense(false);
       loadBudgets(user.uid);
@@ -145,10 +146,11 @@ const Budgets = () => {
         budgetId: selectedBudget._id,
         amount: parseFloat(expenseAmount),
         description: expenseDescription,
-        date: new Date().toISOString(),
+        date: expenseDate,
         userId: user.uid,
+        userEmail : user.email,
       };
-      await axios.post("https://expensetracker-backend-s78u.onrender.com/addexpense", newExpense);
+      await axios.post("http://localhost:5000/addexpense", newExpense);
       toast.success("Expense Added Successfully !", { autoClose: 1000 });
       loadBudgets(user.uid);
       loadExpenses(selectedBudget._id); 
@@ -176,9 +178,10 @@ const Budgets = () => {
   const handleUpdateExpense = async (event) => {
     event.preventDefault();
     try {
-      await axios.put(`https://expensetracker-backend-s78u.onrender.com/updateexpense/${editExpenseId}`, {
+      await axios.put(`http://localhost:5000/updateexpense/${editExpenseId}`, {
         amount: parseFloat(expenseAmount),
         description: expenseDescription,
+        userEmail : user.email,
       });
       toast.success("Expense Updated Successfully!", { autoClose: 1000 });
       loadBudgets(user.uid);
@@ -206,7 +209,7 @@ const Budgets = () => {
 
   const handleDeleteExpense = async (expenseId) => {
     try {
-      await axios.delete(`https://expensetracker-backend-s78u.onrender.com/deleteexpense/${expenseId}`);
+      await axios.delete(`http://localhost:5000/deleteexpense/${expenseId}`);
       toast.success("Expense Deleted Successfully!", { autoClose: 1000 });
       loadBudgets(user.uid);
       loadExpenses(selectedBudget._id);
@@ -220,6 +223,19 @@ const Budgets = () => {
     setSelectedBudget(budget);
     loadExpenses(budget._id); 
   };
+  
+  // Function to get today's date in yyyy-mm-dd format
+function getMaxDate() {
+  const today = new Date();
+  return today.toISOString().split("T")[0];
+}
+
+// Function to get the date one month ago in yyyy-mm-dd format
+function getMinDate() {
+  const date = new Date();
+  date.setMonth(date.getMonth() - 1);
+  return date.toISOString().split("T")[0];
+}
 
   return (
     <Layout>
@@ -328,34 +344,45 @@ const Budgets = () => {
             </h2>
 
             <form
-              onSubmit={isEditingExpense ? handleUpdateExpense : handleAddExpense}
-              className="mb-6 bg-white shadow-md rounded-lg p-6"
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input
-                  type="number"
-                  placeholder="Expense Amount"
-                  value={expenseAmount}
-                  onChange={(e) => setExpenseAmount(e.target.value)}
-                  required
-                  className="border border-gray-300 rounded-lg p-3 w-full"
-                />
-                <input
-                  type="text"
-                  placeholder="Expense Description"
-                  value={expenseDescription}
-                  onChange={(e) => setExpenseDescription(e.target.value)}
-                  required
-                  className="border border-gray-300 rounded-lg p-3 w-full"
-                />
-              </div>
-              <button
-                type="submit"
-                className="mt-4 bg-blue-600 text-white py-3 px-6 rounded-lg w-full hover:bg-blue-700 transition"
-              >
-                {isEditingExpense ? "Update Expense" : "Add Expense"}
-              </button>
-            </form>
+  onSubmit={isEditingExpense ? handleUpdateExpense : handleAddExpense}
+  className="mb-6 bg-white shadow-md rounded-lg p-6"
+>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <input
+      type="number"
+      placeholder="Expense Amount"
+      value={expenseAmount}
+      onChange={(e) => setExpenseAmount(e.target.value)}
+      required
+      className="border border-gray-300 rounded-lg p-3 w-full"
+    />
+    <input
+      type="text"
+      placeholder="Expense Description"
+      value={expenseDescription}
+      onChange={(e) => setExpenseDescription(e.target.value)}
+      required
+      className="border border-gray-300 rounded-lg p-3 w-full"
+    />
+    <input
+      type="date"
+      placeholder="Expense Date"
+      value={expenseDate}
+      onChange={(e) => setExpenseDate(e.target.value)}
+      required
+      className="border border-gray-300 rounded-lg p-3 w-full"
+      min={getMinDate()}
+      max={getMaxDate()}
+    />
+  </div>
+  <button
+    type="submit"
+    className="mt-4 bg-blue-600 text-white py-3 px-6 rounded-lg w-full hover:bg-blue-700 transition"
+  >
+    {isEditingExpense ? "Update Expense" : "Add Expense"}
+  </button>
+</form>
+
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {expenses.map((expense) => (

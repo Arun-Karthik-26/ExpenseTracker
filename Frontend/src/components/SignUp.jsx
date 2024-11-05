@@ -13,7 +13,7 @@ const SignUp = () => {
   // Function to send user details to the backend
   const saveUserDetailsToMongoDB = async (userDetails) => {
     try {
-      const response = await fetch('https://expensetracker-backend-s78u.onrender.com/saveUser', {
+      const response = await fetch('http://localhost:5000/saveUser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userDetails),

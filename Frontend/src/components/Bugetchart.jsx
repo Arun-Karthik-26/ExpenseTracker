@@ -24,6 +24,13 @@ const BudgetChart = ({ budgetData, expenseData }) => {
         borderColor: 'rgba(255, 99, 132, 1)',
         borderWidth: 1,
       },
+      {
+        label: 'Amount Spent',
+        data: budgetData.map(b => b.spentAmount), // Spent amounts of budgets
+        backgroundColor: 'rgba(255, 206, 86, 0.6)',
+        borderColor: 'rgba(255, 206, 86, 1)',
+        borderWidth: 1,
+      },
     ],
   };
 

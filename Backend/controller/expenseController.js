@@ -1,11 +1,41 @@
 import Expense from '../models/expense.js'; // Import the Expense model
 import Budget from '../models/budget.js';
 import mongoose from 'mongoose'; // Import mongoose for ObjectId
+import nodemailer from 'nodemailer';
 
-// Ensure you have the correct import for your Expense model
+const sendThresholdEmail = async (userEmail, budgetTitle, threshold) => {
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465, // Use 465 for SSL
+        secure: true, // Set to true for 465
+        auth: {
+            user: process.env.USER , // Your Gmail address
+            pass: process.env.PASS , // Your Gmail app password (not your email password if 2FA is enabled)
+        },
+        tls: {
+            rejectUnauthorized: false, // Optional: Bypass unauthorized certificate checks
+        },
+    });
+    
+
+    const mailOptions = {
+        from: process.env.USER,
+        to: userEmail,
+        subject: `Budget Alert: ${budgetTitle} Budget is ${threshold}% Used`,
+        text: `You have used ${threshold}% of your budget "${budgetTitle}". Consider reviewing your expenses to avoid overspending.`,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Threshold email sent successfully');
+    } catch (error) {
+        console.error('Error sending threshold email:', error);
+    }
+};
+
 
 export const saveNewExpense = async (req, res) => {
-    const { budgetId, amount, description, date, userId } = req.body;
+    const { budgetId, amount, description, date, userId ,userEmail} = req.body;
 
     // Validate budgetId length and format
     if (!mongoose.Types.ObjectId.isValid(budgetId)) {
@@ -41,7 +71,11 @@ export const saveNewExpense = async (req, res) => {
         budget.remaining -= amount; // Deduct the amount from remaining budget
         budget.expenses += amount;   // Update total expenses
         await budget.save();
-
+        const usagePercent = ((budget.remaining || 0) / (budget.totalAmount || 1) * 100).toFixed(2);
+        if (usagePercent <= 10) {
+            // Send email notification if 90% used
+            await sendThresholdEmail(userEmail, budget.title, 90);
+        }
         res.status(201).json(expense);
     } catch (error) {
         console.error("Error adding expense:", error.message);
@@ -116,10 +150,6 @@ export const fetchRecentExpenses = async (req, res) => {
             }
         ]);
 
-        if (expenses.length === 0) {
-            return res.status(404).json({ message: "No expenses found for this user" });
-        }
-
         res.status(200).json(expenses);
     } catch (error) {
         console.error("Error fetching expenses:", error);
@@ -131,7 +161,7 @@ export const fetchRecentExpenses = async (req, res) => {
 
 export const updateExpense = async (req, res) => {
   const { expenseId } = req.params; // Extract expense ID from the URL parameters
-  const { amount, description, date } = req.body; // Extract fields from the request body
+  const { amount, description, date,userEmail } = req.body; // Extract fields from the request body
 
   try {
     // Find the existing expense by its ID
@@ -172,6 +202,12 @@ export const updateExpense = async (req, res) => {
     // Update the budget's remaining amount
     budget.remaining = updatedRemaining; // Update the remaining budget
     await budget.save(); // Save the budget changes
+
+    const usagePercent = ((budget.remaining || 0) / (budget.totalAmount || 1) * 100).toFixed(2);
+        if (usagePercent <= 10) {
+            // Send email notification if 90% used
+            await sendThresholdEmail(userEmail, budget.title, 90);
+        }
 
     res.status(200).json({ message: 'Expense updated successfully', expense: existingExpense });
   } catch (error) {

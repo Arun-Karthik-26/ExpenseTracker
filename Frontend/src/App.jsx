@@ -8,6 +8,7 @@ import Budgets from './components/Budget.jsx';
 import LatestExpenses from './components/Expenses.jsx';
 import DashboardContent from './components/dashboardcontent.jsx';
 import GenerateReport from './components/generate.jsx';
+import AddReminder from './components/addremainder.jsx';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/budgets" element={<PrivateRoute><Budgets/></PrivateRoute>}/>
         <Route path="/expenses" element={<PrivateRoute><LatestExpenses/></PrivateRoute>}/>
         <Route path="/generate" element={<PrivateRoute><GenerateReport/></PrivateRoute>}/>
+        <Route path="/remainders" element={<PrivateRoute><AddReminder/></PrivateRoute>}/>
       </Routes>
     </Router>
   );

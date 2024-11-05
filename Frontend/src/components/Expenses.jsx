@@ -7,14 +7,17 @@ const Expenses = () => {
     const [expenses, setExpenses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [userId, setUserId] = useState(null); 
+    const [userId, setUserId] = useState(null);
+
+    // Filter states
+    const [amountFilter, setAmountFilter] = useState('');
+    const [budgetFilter, setBudgetFilter] = useState('');
+    const [dateFilter, setDateFilter] = useState('');
 
     // Function to load recent expenses
     const loadRecentExpenses = async (uid) => {
-        const userId = uid; // Replace with dynamic user ID if available
-
         try {
-            const response = await axios.get(`https://expensetracker-backend-s78u.onrender.com/getlatestexpenses?user=${userId}`);
+            const response = await axios.get(`http://localhost:5000/getlatestexpenses?user=${uid}`);
             setExpenses(response.data); // Set the expenses from the response
         } catch (err) {
             console.error("Error fetching recent expenses:", err);
@@ -28,30 +31,42 @@ const Expenses = () => {
     useEffect(() => {
         const auth = getAuth();
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-          if (firebaseUser) {
-            setUserId(firebaseUser.uid); // Set user ID from Firebase
-          } else {
-            console.error("No user is logged in");
-          }
+            if (firebaseUser) {
+                setUserId(firebaseUser.uid); // Set user ID from Firebase
+            } else {
+                console.error("No user is logged in");
+            }
         });
-    
-        return () => unsubscribe();
-      }, []);
-    
-      // Fetch dashboard data when user ID is available
-      useEffect(() => {
-        if (userId) {
-          loadRecentExpenses(userId);
-        }
-      }, [userId]);
 
-    // Render expenses
+        return () => unsubscribe();
+    }, []);
+
+    // Fetch expenses when user ID is available
+    useEffect(() => {
+        if (userId) {
+            loadRecentExpenses(userId);
+        }
+    }, [userId]);
+
+    // Filter expenses based on user input
+const filteredExpenses = expenses.filter((expense) => {
+    // Format expense date and selected date for comparison
+    const expenseDate = new Date(expense.date).toLocaleDateString();
+    const selectedDate = dateFilter ? new Date(dateFilter).toLocaleDateString() : null;
+
+    const isAmountMatch = amountFilter ? expense.amount <= parseFloat(amountFilter) : true;
+    const isBudgetMatch = budgetFilter ? (expense.budget?.title || '').toLowerCase().includes(budgetFilter.toLowerCase()) : true;
+    const isDateMatch = selectedDate ? expenseDate === selectedDate : true;
+    return isAmountMatch && isBudgetMatch && isDateMatch;
+});
+
+
     if (loading) {
-        return <div className="text-center mt-20 text-blue-600">Loading...</div>; // Show loading state
+        return <div className="text-center mt-20 text-blue-600">Loading...</div>;
     }
 
     if (error) {
-        return <div className="text-center mt-20 text-red-500">{error}</div>; // Show error message
+        return <div className="text-center mt-20 text-red-500">{error}</div>;
     }
 
     return (
@@ -59,8 +74,34 @@ const Expenses = () => {
             <div className="p-6">
                 <h1 className="text-3xl font-semibold text-blue-600 mb-6 text-center">Recent Expenses</h1>
                 
-                {expenses.length === 0 ? (
-                    <p className="text-center text-gray-600">No expenses found.</p> // Message if no expenses
+                {/* Search and Filter Section */}
+                <div className="mb-6 flex flex-col gap-4 md:flex-row justify-center items-center">
+                    <input
+                        type="number"
+                        placeholder="Filter by Amount (e.g., < 50)"
+                        value={amountFilter}
+                        onChange={(e) => setAmountFilter(e.target.value)}
+                        className="border px-4 py-2 rounded-lg"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Filter by Budget Title"
+                        value={budgetFilter}
+                        onChange={(e) => setBudgetFilter(e.target.value)}
+                        className="border px-4 py-2 rounded-lg"
+                    />
+                    <input
+                        type="date"
+                        placeholder="Filter by Date"
+                        value={dateFilter}
+                        onChange={(e) => setDateFilter(e.target.value)}
+                        className="border px-4 py-2 rounded-lg"
+                    />
+                </div>
+
+                {/* Render Filtered Expenses */}
+                {filteredExpenses.length === 0 ? (
+                    <p className="text-center text-gray-600">No expenses found.</p>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full bg-white border border-gray-200">
@@ -73,7 +114,7 @@ const Expenses = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {expenses.map((expense) => (
+                                {filteredExpenses.map((expense) => (
                                     <tr key={expense._id} className="border-t">
                                         <td className="py-2 px-4">{expense.amount}</td>
                                         <td className="py-2 px-4">{expense.description}</td>

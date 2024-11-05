@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom"; // Import Link and useNavigate from React Router
-import { FiGrid, FiDollarSign, FiCreditCard, FiShield, FiLogOut } from "react-icons/fi";
+import { FiGrid, FiDollarSign, FiCreditCard, FiShield, FiLogOut, FiBell } from "react-icons/fi"; // Import Bell icon
 import { getAuth } from "firebase/auth"; // Import Firebase auth methods
 
 const Sidebar = () => {
@@ -52,10 +52,16 @@ const Sidebar = () => {
               Expenses
             </Link>
           </li>
-          <li>
+          <li className="mb-6">
             <Link to="/generate" className="flex items-center">
               <FiShield className="mr-3" />
               Download Report
+            </Link>
+          </li>
+          <li>
+            <Link to="/remainders" className="flex items-center">
+              <FiBell className="mr-3" />
+              Reminders
             </Link>
           </li>
         </ul>
