@@ -35,7 +35,7 @@ const GenerateReport = () => {
         setError(null); // Reset previous errors
 
         try {
-            const response = await axios.get(`http://localhost:5000/getexpensesinrange?user=${userId}&startDate=${startDate}&endDate=${endDate}`);
+            const response = await axios.get(`https://expensetracker-backend-s78u.onrender.com/getexpensesinrange?user=${userId}&startDate=${startDate}&endDate=${endDate}`);
 
             if (response.data.length === 0) {
                 setExpenses([]);
@@ -58,7 +58,7 @@ const GenerateReport = () => {
 
     const fetchBudgetData = async (uid, budgetIds) => {
         try {
-            const response = await axios.get(`http://localhost:5000/getbudgetdata?user=${uid}`);
+            const response = await axios.get(`https://expensetracker-backend-s78u.onrender.com/getbudgetdata?user=${uid}`);
             const allBudgets = response.data; 
             // Filter budgets to include only those with the provided IDs
             const filteredBudgets = allBudgets.filter(budget => budgetIds.includes(budget.budgetId));

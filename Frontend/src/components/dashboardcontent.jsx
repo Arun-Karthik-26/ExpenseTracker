@@ -16,7 +16,7 @@ const DashboardContent = () => {
   // Function to fetch dashboard data from the server
   const fetchDashboardData = async (uid) => {
     try {
-      const response = await axios.get(`http://localhost:5000/getDashBoardData?user=${uid}`);
+      const response = await axios.get(`https://expensetracker-backend-s78u.onrender.com/getDashBoardData?user=${uid}`);
       const data = response.data;
 
       setTotalBudget(data.totalBudget);

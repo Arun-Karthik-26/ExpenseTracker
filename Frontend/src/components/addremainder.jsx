@@ -36,7 +36,7 @@ const AddReminder = () => {
 
         try {
             // Send reminder data to the backend
-            const response = await axios.post('http://localhost:5000/remainders', {
+            const response = await axios.post('https://expensetracker-backend-s78u.onrender.com/remainders', {
                 userId, // Use the user ID from Firebase
                 name,
                 amount,

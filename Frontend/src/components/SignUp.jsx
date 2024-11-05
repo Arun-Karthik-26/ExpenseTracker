@@ -13,7 +13,7 @@ const SignUp = () => {
   // Function to send user details to the backend
   const saveUserDetailsToMongoDB = async (userDetails) => {
     try {
-      const response = await fetch('http://localhost:5000/saveUser', {
+      const response = await fetch('https://expensetracker-backend-s78u.onrender.com/saveUser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userDetails),
@@ -64,7 +64,7 @@ const SignUp = () => {
 
     } catch (error) {
       console.error('Error during Google Sign-Up:', error.message);
-      toast.error("Error in Sign-up!", {
+      toast.error(`Error in Sign-up! ${error.message}`, {
         position: "top-right",
         autoClose: 1000,
         hideProgressBar: false,
@@ -111,7 +111,7 @@ const SignUp = () => {
 
     } catch (error) {
       console.error('Error during Email Sign-Up:', error.message);
-      toast.error("Error in Sign-up!", {
+      toast.error(`Error in Sign-up! ${error.message}`, {
         position: "top-right",
         autoClose: 1000,
         hideProgressBar: false,
