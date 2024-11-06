@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getAuth } from 'firebase/auth'; 
 import Layout from "./Layout";
+import { ToastContainer, toast } from 'react-toastify';  // Import Toastify components
+import 'react-toastify/dist/ReactToastify.css';
+
 // Import Firebase auth methods
 
 const AddReminder = () => {
@@ -45,14 +48,30 @@ const AddReminder = () => {
             });
 
             // Handle success
-            setMessage('Reminder added successfully!');
+            toast.success("Remainder added succesfully!!", {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
             // Reset form fields
             setName('');
             setAmount('');
             setLastDate('');
         } catch (error) {
             console.error('Error adding reminder:', error);
-            setMessage('Error adding reminder. Please try again.');
+            toast.error("Error adding remainder!!", {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
         }
     };
 
@@ -97,6 +116,7 @@ const AddReminder = () => {
             </form>
             {message && <p className="mt-4 text-red-500">{message}</p>}
         </div>
+        <ToastContainer />
         </Layout>
     );
 };

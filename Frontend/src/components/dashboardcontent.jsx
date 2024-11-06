@@ -64,14 +64,16 @@ const DashboardContent = () => {
 
   return (
     <Layout>
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Welcome to PennyTrack ✌️</h1>
-        <p className="text-gray-500">Here's what's happening with your money. Let's manage your expense.</p>
+      {/* Header with adjusted positioning for mobile */}
+      <div className="mb-6 mt-8 sm:mt-12 flex justify-start sm:justify-start md:justify-start lg:justify-start">
+        <div className="text-left sm:text-left md:text-left lg:text-left">
+          <h1 className="text-3xl font-bold sm:text-4xl px-4">Welcome to PennyTrack ✌️</h1>
+          <p className="text-gray-500 text-lg sm:text-xl">Here's what's happening with your money. Let's manage your expense.</p>
+        </div>
       </div>
 
       {/* Budget Overview */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-6 rounded-lg shadow flex items-center justify-between">
           <div>
             <p className="text-gray-500">Total Budget</p>
@@ -104,13 +106,13 @@ const DashboardContent = () => {
       {/* Latest Budgets */}
       <div className="bg-white p-6 rounded-lg shadow">
         <h3 className="text-xl font-bold mb-4">Latest Budgets</h3>
-        <div className="flex flex-col space-y-4">
+        <div className="space-y-4">
           {latestBudgets.map((budget, index) => {
             const spentAmount = budget.totalAmount - budget.remaining;
             return (
               <div key={index} className="flex items-center justify-between">
                 <div>
-                  <p>{budget.title}</p>
+                  <p className="text-lg font-medium">{budget.title}</p>
                   <p className="text-gray-500 text-sm">
                     Total: ${budget.totalAmount} | Spent: ${spentAmount}
                   </p>
