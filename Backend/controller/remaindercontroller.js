@@ -48,6 +48,9 @@ export const addReminder = async (req, res) => {
         const fiveMinutesLater = new Date();
         fiveMinutesLater.setMinutes(fiveMinutesLater.getMinutes() + 1);
         
+
+        console.log("hii");
+        console.log("heloo");
         console.log(`Job scheduled for: ${fiveMinutesLater}`);
         schedule.scheduleJob(fiveMinutesLater, async function () {
             console.log("Executing scheduled job...");
