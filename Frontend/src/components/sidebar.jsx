@@ -1,24 +1,31 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Import Link and useNavigate from React Router
-import { FiGrid, FiDollarSign, FiCreditCard, FiShield, FiLogOut, FiBell, FiMenu } from "react-icons/fi"; // Import icons
-import { getAuth } from "firebase/auth"; // Import Firebase auth methods
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FiGrid, FiDollarSign, FiCreditCard, FiShield, FiLogOut, FiBell, FiMenu } from "react-icons/fi";
+import { getAuth } from "firebase/auth";
 
 const Sidebar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State to handle mobile menu
-  const navigate = useNavigate(); // Initialize useNavigate
-  const auth = getAuth(); // Get Firebase authentication instance
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const navigate = useNavigate();
+  const auth = getAuth();
 
-  // Function to handle user logout
+  useEffect(() => {
+    // Get the current user from Firebase and set their email
+    const currentUser = auth.currentUser;
+    if (currentUser && currentUser.email) {
+      setUserEmail(currentUser.email);
+    }
+  }, [auth]);
+
   const handleLogout = async () => {
     try {
-      await auth.signOut(); // Sign out the user
-      navigate("/"); // Navigate to the home page
+      await auth.signOut();
+      navigate("/");
     } catch (error) {
-      console.error("Error signing out: ", error); // Handle any errors
+      console.error("Error signing out: ", error);
     }
   };
 
-  // Toggle the mobile menu
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
@@ -78,9 +85,9 @@ const Sidebar = () => {
         {/* Profile Section */}
         <div className="absolute bottom-24 left-4 flex items-center space-x-3">
           <div className="bg-green-500 h-10 w-10 rounded-full flex items-center justify-center text-white">
-            G
+            {userEmail ? userEmail[0].toUpperCase() : "G"}
           </div>
-          <span>Profile</span>
+          <span>{userEmail || "Profile"}</span>
         </div>
 
         {/* Logout Button */}
@@ -134,9 +141,9 @@ const Sidebar = () => {
           {/* Profile Section for Mobile */}
           <div className="flex items-center space-x-3 mt-8">
             <div className="bg-green-500 h-10 w-10 rounded-full flex items-center justify-center text-white">
-              G
+              {userEmail ? userEmail[0].toUpperCase() : "G"}
             </div>
-            <span>Profile</span>
+            <span>{userEmail || "Profile"}</span>
           </div>
 
           {/* Logout Button */}
