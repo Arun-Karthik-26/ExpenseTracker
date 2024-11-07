@@ -25,9 +25,6 @@ const SignIn = () => {
         draggable: true,
         progress: undefined,
       });
-      console.log('User signed in with Google:', user);
-
-      // Delay navigation to allow the toast to show
       setTimeout(() => {
         navigate('/dashboard');
       }, 1000);
@@ -42,7 +39,6 @@ const SignIn = () => {
         progress: undefined,
       });
       console.error('Error during Google Sign-In:', error.message);
-      
     }
   };
 
@@ -60,17 +56,11 @@ const SignIn = () => {
         draggable: true,
         progress: undefined,
       });
-      console.log('User signed in with email:', user);
-
-      // Delay navigation to allow the toast to show
       setTimeout(() => {
         navigate('/dashboard');
       }, 1000);
     } catch (error) {
-      // Clear the error message before setting a new one
       setError('');
-      
-      // Error handling for specific Firebase auth error codes
       let errorMessage;
       switch (error.code) {
         case 'auth/wrong-password':
@@ -86,7 +76,6 @@ const SignIn = () => {
           errorMessage = 'Error during email sign-in';
           break;
       }
-      
       toast.error(errorMessage, {
         position: "top-right",
         autoClose: 1000,
@@ -96,21 +85,19 @@ const SignIn = () => {
         draggable: true,
         progress: undefined,
       });
-
-     
     }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-      <div className="flex w-full max-w-4xl bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="flex flex-col md:flex-row w-full max-w-4xl bg-white rounded-lg shadow-md overflow-hidden">
         <img 
           src="https://moneyview.in/images/blog/wp-content/uploads/2017/10/Blog-11-reasonsfeature-min.jpg" 
           alt="img" 
-          className="hidden md:block w-1/2 h-auto" 
+          className="w-full h-40 object-cover md:h-auto md:w-1/2 hidden md:block" 
         />
-        <div className="flex flex-col w-1/2 p-8">
-          <h1 className="text-2xl font-bold text-center text-gray-800">Sign In</h1>
+        <div className="flex flex-col w-full md:w-1/2 p-6 sm:p-8">
+          <h1 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-2">Sign In</h1>
           <p className="text-center text-gray-600 mb-4">Welcome back! Please log in to continue.</p>
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           <form onSubmit={handleEmailSignIn} className="flex flex-col">
@@ -119,16 +106,16 @@ const SignIn = () => {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mb-4 p-4 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mb-3 p-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
-            <div className="relative mb-4">
+            <div className="relative mb-3">
               <input
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="p-4 border border-gray-300 rounded-lg text-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-3 border border-gray-300 rounded-lg text-base w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
               <span
@@ -140,19 +127,19 @@ const SignIn = () => {
             </div>
             <button
               type="submit"
-              className="w-full p-4 bg-blue-500 text-white rounded-lg text-lg font-semibold hover:bg-blue-600 transition duration-300"
+              className="w-full p-3 bg-blue-500 text-white rounded-lg text-base font-semibold hover:bg-blue-600 transition duration-300"
             >
               Sign In with Email
             </button>
           </form>
           <button
             onClick={handleGoogleSignIn}
-            className="w-full p-4 mt-4 bg-red-500 text-white rounded-lg text-lg font-semibold hover:bg-red-600 transition duration-300"
+            className="w-full p-3 mt-4 bg-red-500 text-white rounded-lg text-base font-semibold hover:bg-red-600 transition duration-300"
           >
             Continue with Google
           </button>
           <div className="flex flex-col items-center mt-4">
-            <p className="text-center">Are you a new user? 
+            <p className="text-center text-sm sm:text-base">Are you a new user? 
               <span className="text-blue-500 cursor-pointer" onClick={() => navigate('/signup')}> Sign Up here</span>
             </p>
           </div>

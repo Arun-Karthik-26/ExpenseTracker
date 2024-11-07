@@ -49,7 +49,7 @@ const SignUp = () => {
 
       toast.success("Signed up successfully!", {
         position: "top-right",
-        autoClose: 1000, // Adjust the duration if needed
+        autoClose: 1000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -130,9 +130,9 @@ const SignUp = () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }}>
-      <div className="flex w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden"> {/* Adjusted max-w-md */}
-        <div className="flex flex-col w-full p-8">
-          <h1 className="text-2xl font-bold mb-5">Create an Account</h1>
+      <div className="flex w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden sm:max-w-sm sm:p-6 p-4 sm:m-8 m-4"> {/* Adjusted max-w-md */}
+        <div className="flex flex-col w-full">
+          <h1 className="text-2xl font-bold mb-5 text-center sm:text-left">Create an Account</h1>
           <form onSubmit={handleEmailSignUp} className="flex flex-col">
             <input
               type="email"
@@ -140,7 +140,7 @@ const SignUp = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mb-4 p-4 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mb-4 p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="password"
@@ -148,18 +148,18 @@ const SignUp = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mb-4 p-4 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mb-4 p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               type="submit"
-              className="w-full p-4 mb-4 bg-blue-500 text-white rounded-lg text-lg font-semibold hover:bg-blue-600 transition duration-300"
+              className="w-full p-3 mb-4 bg-blue-500 text-white rounded-lg text-lg font-semibold hover:bg-blue-600 transition duration-300"
             >
               Sign Up with Email
             </button>
           </form>
           <button
             onClick={handleGoogleSignUp}
-            className="w-full p-4 bg-red-500 text-white rounded-lg text-lg font-semibold hover:bg-red-600 transition duration-300"
+            className="w-full p-3 bg-red-500 text-white rounded-lg text-lg font-semibold hover:bg-red-600 transition duration-300"
           >
             Continue with Google
           </button>
