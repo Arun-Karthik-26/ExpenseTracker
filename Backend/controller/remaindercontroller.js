@@ -3,8 +3,7 @@ import nodemailer from 'nodemailer';
 import schedule from 'node-schedule';
 
 
-const sendEmail = async (reminder) => {
-    console.log("sending to ",reminder.userEmail);
+const sendEmail = async (userEmail,subject,text) => {
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,  // Use 465 for SSL
@@ -19,9 +18,9 @@ const sendEmail = async (reminder) => {
     
         const mailOptions = {
             from: process.env.USER,
-            to: reminder.userEmail, // Make sure to store and use the user's email in the reminder
-            subject: 'Reminder: Upcoming Bill/EMI Due',
-            text: `This is a reminder that your bill/EMI "${reminder.name}" of amount $${reminder.amount} is due on ${reminder.lastDate}.`,
+            to: userEmail, // Make sure to store and use the user's email in the reminder
+            subject,
+            text,
         };
     
         try {
@@ -36,24 +35,56 @@ const sendEmail = async (reminder) => {
 // Endpoint to create a new reminder
 export const addReminder = async (req, res) => {
     const { userId, name, amount, lastDate, userEmail } = req.body;
-    
-    console.log("received");
+
     if (!userId || !name || !amount || !lastDate || !userEmail) {
         return res.status(400).json({ message: "All fields are required." });
     }
 
     try {
         const reminder = await Reminder.create({ userId, name, amount, lastDate, userEmail });
-        // Schedule the email notification for 5 minutes later (for testing)
-        const fiveMinutesLater = new Date();
-        fiveMinutesLater.setMinutes(fiveMinutesLater.getMinutes() + 1);
-        console.log("sending immediately");
-        await sendEmail(reminder);
-        console.log(`Job scheduled for: ${fiveMinutesLater}`);
-        schedule.scheduleJob(fiveMinutesLater, async function () {
-            console.log("Executing scheduled job...");
-            await sendEmail(reminder);
-        });
+
+        // Check if due date is today or tomorrow
+        const today = new Date();
+        const dueDate = new Date(lastDate);
+        const timeDifference = dueDate - today;
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+
+        // Send reminder email immediately if due date is today or tomorrow
+        if (timeDifference <= oneDayInMs) {
+            console.log("Sending immediate reminder email...");
+            await sendEmail(
+                userEmail,
+                `Urgent Reminder: ${name} is Due Soon`,
+                `This is a reminder that your bill/EMI "${name}" of amount $${amount} is due on ${lastDate}.`
+            );
+        } else {
+            // Schedule confirmation email (1 minute after the reminder is added) only if the due date is not today or tomorrow
+            const confirmationTime = new Date();
+            confirmationTime.setSeconds(confirmationTime.getSeconds() + 5); // Schedule for 5 seconds later
+
+            console.log(`Confirmation email scheduled for: ${confirmationTime}`);
+            schedule.scheduleJob(confirmationTime, async () => {
+            console.log("Sending confirmation email...");
+            await sendEmail(
+        userEmail,
+        `Reminder Noted: ${name}`,
+        `Your reminder for "${name}" with an amount of $${amount} has been noted. A reminder will be sent two days before the due date (${lastDate}).`
+    );
+});
+            // Schedule reminder email 2 days before the due date
+            const reminderTime = new Date(lastDate);
+            reminderTime.setDate(reminderTime.getDate() - 2);
+
+            console.log(`Reminder email scheduled for: ${reminderTime}`);
+            schedule.scheduleJob(reminderTime, async () => {
+                console.log("Sending scheduled reminder email...");
+                await sendEmail(
+                    userEmail,
+                    `Upcoming Due Date for ${name}`,
+                    `This is a reminder that your bill/EMI "${name}" of amount $${amount} is due on ${lastDate}.`
+                );
+            });
+        }
 
         res.status(201).json(reminder);
     } catch (error) {
