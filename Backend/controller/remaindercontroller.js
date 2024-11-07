@@ -47,10 +47,8 @@ export const addReminder = async (req, res) => {
         // Schedule the email notification for 5 minutes later (for testing)
         const fiveMinutesLater = new Date();
         fiveMinutesLater.setMinutes(fiveMinutesLater.getMinutes() + 1);
-        
-
-        console.log("hii");
-        console.log("heloo");
+        console.log("sending immediately");
+        await sendEmail(reminder);
         console.log(`Job scheduled for: ${fiveMinutesLater}`);
         schedule.scheduleJob(fiveMinutesLater, async function () {
             console.log("Executing scheduled job...");
