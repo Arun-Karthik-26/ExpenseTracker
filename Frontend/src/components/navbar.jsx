@@ -10,8 +10,16 @@ const Navbar = () => {
     return (
         <nav className="bg-white shadow-md h-20 flex items-center px-5 sm:h-16 sm:px-4">
             <div className="flex justify-between items-center w-full">
-                <h1 className="text-2xl font-bold text-[#4D46CF] sm:text-xl">PennyTrack</h1>
-                
+          <div className="text-2xl font-bold text-blue-600 mb-1">
+          <div className="flex items-center">
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoSbpWz8SUrRq7EZL-tE73XEN-oSUPFgA3KQ&s"
+              alt="Logo"
+              className="mr-2 rounded-full w-8 h-8"
+            />
+            <span>PennyTrack</span>
+          </div>
+        </div>                
                 {/* Hamburger Menu Icon (Visible only on small screens) */}
                 <button className="sm:hidden text-2xl" onClick={toggleMobileMenu}>
                     {isMobileMenuOpen ? '×' : '☰'}
@@ -24,11 +32,6 @@ const Navbar = () => {
                             DashBoard
                         </button>
                     </a>
-                    <a href='/signin'>
-                        <button className="bg-[#4D46CF] px-4 py-2 text-sm font-bold text-white border border-[#4D46CF] rounded-lg shadow-lg hover:bg-[#3b3b98] transition-transform duration-300 transform hover:scale-105">
-                            Get Started
-                        </button>
-                    </a>
                 </div>
 
                 {/* Mobile Menu (Visible on small screens when the hamburger menu is clicked) */}
@@ -37,11 +40,6 @@ const Navbar = () => {
                         <a href='/signin'>
                             <button className="w-full mb-4 text-center text-sm font-bold text-[#4D46CF] bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition-transform duration-300 transform hover:scale-105">
                                 DashBoard
-                            </button>
-                        </a>
-                        <a href='/signin'>
-                            <button className="w-full text-center text-sm font-bold text-white bg-[#4D46CF] px-3 py-2 rounded-lg hover:bg-[#3b3b98] transition-transform duration-300 transform hover:scale-105">
-                                Get Started
                             </button>
                         </a>
                     </div>
