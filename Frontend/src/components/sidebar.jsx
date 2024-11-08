@@ -8,12 +8,13 @@ const Sidebar = () => {
   const [userEmail, setUserEmail] = useState("");
   const navigate = useNavigate();
   const auth = getAuth();
-
+  
   useEffect(() => {
     // Get the current user from Firebase and set their email
     const currentUser = auth.currentUser;
     if (currentUser && currentUser.email) {
       setUserEmail(currentUser.email);
+      console.log( userEmail.split('@')[0]);
     }
   }, [auth]);
 
@@ -87,8 +88,8 @@ const Sidebar = () => {
           <div className="bg-green-500 h-10 w-10 rounded-full flex items-center justify-center text-white">
             {userEmail ? userEmail[0].toUpperCase() : "G"}
           </div>
-          <span>{userEmail || "Profile"}</span>
-        </div>
+          <span>{userEmail && userEmail.includes('@') ? userEmail.split('@')[0] : "Profile"}</span>
+          </div>
 
         {/* Logout Button */}
         <button 
@@ -143,8 +144,8 @@ const Sidebar = () => {
             <div className="bg-green-500 h-10 w-10 rounded-full flex items-center justify-center text-white">
               {userEmail ? userEmail[0].toUpperCase() : "G"}
             </div>
-            <span>{userEmail || "Profile"}</span>
-          </div>
+            <span>{userEmail && userEmail.includes('@') ? userEmail.split('@')[0] : "Profile"}</span>
+            </div>
 
           {/* Logout Button */}
           <button 

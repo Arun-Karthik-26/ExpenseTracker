@@ -193,12 +193,14 @@ const GenerateReport = () => {
 
                 {/* Date Range Selection and Buttons */}
                 <div className="flex flex-col md:flex-row md:space-x-6 items-center mb-8 space-y-4 md:space-y-0">
+                    <label className="font-medium">From :</label>
                     <input
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
                         className="border border-gray-300 rounded-lg p-3 w-full md:w-72 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                      <label  className="font-medium">To :</label>
                     <input
                         type="date"
                         value={endDate}
