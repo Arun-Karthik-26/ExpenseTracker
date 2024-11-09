@@ -104,7 +104,7 @@ const filteredExpenses = expenses.filter((expense) => {
                     <p className="text-center text-gray-600">No expenses found.</p>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full bg-white border border-gray-300">
+                        <table className="min-w-full bg-white border border-gray-200">
                             <thead>
                                 <tr className="bg-violet-500 text-white">
                                     <th className="py-3 px-4 text-left">Amount</th>
