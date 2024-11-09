@@ -55,7 +55,7 @@ const Footer = () => {
           <h2 className="font-medium">Developed by Our Team Code Crackers</h2>
           <div className="flex items-center gap-2">
             <FaWhatsapp className="text-green-500" />
-            <span className="font-medium"> 9098789009</span>
+            <span className="font-medium">+91 9098789009</span>
           </div>
         </div>
       </div>
