@@ -31,6 +31,46 @@ const sendEmail = async (userEmail,subject,text) => {
         }
     };
 
+    //Function to reload and schedule all reminders from the database
+    const reloadReminders = async () => {
+        try {
+            const reminders = await Reminder.find();
+            reminders.forEach(async (reminder) => {
+                const reminderTime = new Date(reminder.lastDate);
+                reminderTime.setDate(reminderTime.getDate() - 2);
+                
+                if (reminderTime > new Date()) {  // Schedule only future reminders
+                    console.log(`Scheduling reminder for ${reminder.name} on ${reminderTime}`);
+                    schedule.scheduleJob(reminderTime, async () => {
+                        console.log("Sending scheduled reminder email...");
+                        await sendEmail(
+                            reminder.userEmail,
+                            `Upcoming Due Date for ${reminder.name}`,
+                            `This is a reminder that your bill/EMI "${reminder.name}" of amount $${reminder.amount} is due on ${reminder.lastDate}.`
+                        );
+                    });
+                } else {
+                    console.log(`Sending immediate overdue reminder email for ${reminder.name}`);
+                    await sendEmail(
+                        reminder.userEmail,
+                        `Urgent Reminder: ${reminder.name} is Due Soon`,
+                        `This is a reminder that your bill/EMI "${reminder.name}" of amount $${reminder.amount} was due on ${reminder.lastDate}.`
+                    );
+    
+                    // Delete overdue reminder from database
+                    await Reminder.findByIdAndDelete(reminder._id);
+                    console.log(`Overdue reminder for ${reminder.name} deleted from database.`);
+                }
+            });
+        } catch (error) {
+            console.error('Error reloading reminders:', error);
+        }
+    };
+    
+
+// Call reloadReminders at server startup
+reloadReminders();
+
 // Endpoint to create a new reminder
 // Endpoint to create a new reminder
 export const addReminder = async (req, res) => {
@@ -57,6 +97,7 @@ export const addReminder = async (req, res) => {
                 `Urgent Reminder: ${name} is Due Soon`,
                 `This is a reminder that your bill/EMI "${name}" of amount $${amount} is due on ${lastDate}.`
             );
+            await Reminder.findByIdAndDelete(reminder._id);
         } else {
             // Schedule confirmation email (1 minute after the reminder is added) only if the due date is not today or tomorrow
             const confirmationTime = new Date();
